@@ -24,12 +24,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'd6y$xj^o==d)prf!2ip)0u-znp^6myheallu!dg2u%-h2h^(yv'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-if os.environ['ENVIRONMENT'] != 'PRODUCTION':
-    DEBUG = True
-else:
+if os.environ['ENVIRONMENT'] == 'PRODUCTION':
     DEBUG = False
-
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'steph-curry-mvp.herokuapp.com']
+else:
+    DEBUG = True
 
 
 # Application definition
@@ -145,6 +143,12 @@ REST_FRAMEWORK = {
     ],
     'PAGE_SIZE': 10
 }
+
+# Honor the 'X-Forwarded-Proto' header for request.is_secure()
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Allow all host headers
+ALLOWED_HOSTS = ['*']
 
 
 ######################################################################
