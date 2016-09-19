@@ -78,20 +78,21 @@ WSGI_APPLICATION = 'nba_wins_pool.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
-
-if DEBUG:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'nbawinspool',
-            # The following settings are not used with sqlite3:
-            'USER': 'stephcurry',
-            'PASSWORD': 'KobeBryantSucks24!',
-            'HOST': 'localhost',  # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-            'PORT': '',                      # Set to empty string for default.
-        }
+# Debug configuration
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'nbawinspool',
+        # The following settings are not used with sqlite3:
+        'USER': 'stephcurry',
+        'PASSWORD': 'KobeBryantSucks24!',
+        'HOST': 'localhost',  # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+        'PORT': '',                      # Set to empty string for default.
     }
-else:
+}
+
+# Update the production config
+if not DEBUG:
     db_from_env = dj_database_url.config(conn_max_age=500)
     DATABASES['default'].update(db_from_env)
 
