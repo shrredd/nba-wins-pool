@@ -29,7 +29,7 @@ if os.environ['ENVIRONMENT'] != 'PRODUCTION':
 else:
     DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'steph-curry-mvp.herokuapp.com']
 
 
 # Application definition
