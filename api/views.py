@@ -22,12 +22,13 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def create(self, request):
       from api import shravan
-      logger.info('request: %s' % request)
+      logger.info('request data: %s' % request.data)
       serializer = UserSerializer(data=request.data)
       if serializer.is_valid():
-        shravan.SAY('serializer is valid...')
+        logger.info('serializer is valid...')
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+      logger.info('serializer says john is invalid')
       return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request, format=None):
