@@ -9,7 +9,7 @@ from rest_framework import status
 
 import logging
 logger = logging.getLogger('viewsLogger')
-
+logger.info('blah de blah')
 
 class UserViewSet(viewsets.ModelViewSet):
     """
@@ -35,7 +35,9 @@ class UserViewSet(viewsets.ModelViewSet):
       serializer = UserSerializer(users, many=True)
       return Response(serializer.data)
 
-    # def post(self, request, format=None):
+    def post(self, request, format=None):
+      logger.info('request: %s' % request)
+      super(UserViewSet, self).post(request, format=format)
     #     serializer = UserSerializer(data=request.DATA)
     #     if serializer.is_valid():
     #         serializer.save()
