@@ -7,6 +7,9 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 
+import logging
+logger = logging.getLogger('viewsLogger')
+
 
 class UserViewSet(viewsets.ModelViewSet):
     """
@@ -19,7 +22,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def create(self, request):
       from api import shravan
-      shravan.SAY('request: %s' % request)
+      logger.info('request: %s' % request)
       serializer = UserSerializer(data=request.data)
       if serializer.is_valid():
         shravan.SAY('serializer is valid...')
