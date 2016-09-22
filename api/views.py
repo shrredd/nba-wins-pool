@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 import logging
-logger = logging.getLogger('viewsLogger')
+logger = logging.getLogger('testlogger')
 logger.info('blah de blah')
 
 class UserViewSet(viewsets.ModelViewSet):
