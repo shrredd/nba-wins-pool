@@ -19,6 +19,7 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     model = User
     queryset = User.objects.all()
+    lookup_field = ('username')
 
     def create(self, request):
       from api import shravan
