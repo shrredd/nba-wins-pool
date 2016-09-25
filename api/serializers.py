@@ -7,6 +7,7 @@ from rest_framework.authtoken.models import Token
 import logging
 logger = logging.getLogger('testlogger')
 
+
 class UserSerializer(serializers.ModelSerializer):
   class Meta:
     model = User
@@ -18,6 +19,7 @@ class UserSerializer(serializers.ModelSerializer):
       'id': {'read_only': True},
       'url': {'lookup_field': 'username'}
     }
+
   def create(self, validated_data):
     # Create a new User and save to the DB.
     user = User(
