@@ -84,6 +84,7 @@ class PoolSerializer(object):
 
     return {
       'name': pool.name,
+      'max_size': pool.max_size,
       'members': members_list
     }
 
@@ -95,22 +96,36 @@ class PoolSerializer(object):
 
   @staticmethod
   def from_data(pool_data):
-    assert 'name' in pool_data
+    # 0. Validate the `pool_data`
+    assert 'name' in pool_data and isinstance(pool_data['name'], basestring)
+    assert 'max_size' in pool_data
 
-    logger.info('pool_data: %s' % pool_data)
-    member_usernames = pool_data.get('members', [])
-    logger.info('member usernames: %s' % member_usernames)
+    logger.info('within from_data: %s' % pool_data)
+    pool_name = pool_data['name']
+    max_size = int(pool_data['max_size'])
+    assert max_size in (2, 3, 5, 6)
+    member_usernames = pool_data.getlist('members')
 
-    join_time = datetime.now()
-    pool = Pool.objects.create(name=pool_data['name'])
-
+    # 1. Verify that the usernames passed in correspond to actual users.
+    users = None
     if len(member_usernames) > 0:
       users = User.objects.filter(username__in=member_usernames)
-      if len(users) != len(member_usernames):
+      logger.info('len(users): %s' % len(users))
+      logger.info('len(member names): %s' % len(set(member_usernames)))
+      if len(users) != len(set(member_usernames)):
         raise Exception('Bad usernames passed in...')
 
+    # 2. Create the Pool.
+    pool = Pool.objects.create(
+      name=pool_name,
+      max_size=max_size
+    )
+
+    # 3. Create the Membership for each of the Users.
+    if users is not None:
+      curr_time = datetime.now()
       for u in users:
-        m = Membership.objects.create(pool=p, user=u, date_joined=join_time)
+        Membership.objects.create(pool=pool, user=u, date_joined=curr_time)
 
     logger.info('*****************************')
     logger.info('pool: %s' % pool)

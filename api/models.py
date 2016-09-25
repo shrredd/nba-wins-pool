@@ -26,9 +26,10 @@ class Pool(models.Model):
   """
   name = models.CharField(max_length=128)
   members = models.ManyToManyField(User, through='Membership')
+  max_size = models.PositiveSmallIntegerField(default=5)
 
   def __unicode__(self):
-    return '<Pool (name=%s)>' % (self.name)
+    return '<Pool (name=%s, max_size=%s)>' % (self.name, self.max_size)
 
 
 class Membership(models.Model):
