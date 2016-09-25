@@ -30,19 +30,9 @@ class UserSerializer(serializers.ModelSerializer):
     user.save()
 
     # Create a coresponding authentication token for this user
-    t = Token.objects.create(user=user)
+    # t = Token.objects.create(user=user)
 
     return user
-
-# class MembersByPoolList(generics.ListAPIView):
-#   model = User
-#   serializer_class = UserSerializer
-
-#   def get_queryset(self):
-#     user_pk = self.kwargs.get('user_pk', None)
-#     if user_pk is not None:
-#         return .objects.filter(user=user_pk)
-#     return []
 
 
 class MembershipSerializer(serializers.HyperlinkedModelSerializer):
