@@ -70,12 +70,13 @@ class PoolList(APIView):
 
   def post(self, request, format=None):
     logger.info('original pool data: %s' % request.data)
-    pools = PoolSerializer.from_data(request.data)
+    pool = PoolSerializer.from_data(request.data)
     # if serializer.is_valid():
     #     serializer.save()
     #     return Response(serializer.data, status=status.HTTP_201_CREATED)
-    if pools:
-      return Response(request.data, status=status.HTTP_201_CREATED)
+    if pool:
+      pool_data = PoolSerializer.to_data(pool)
+      return Response(pool_data, status=status.HTTP_201_CREATED)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

@@ -75,6 +75,7 @@ class PoolSerializer(object):
     } for user in pool.members.all()]
 
     return {
+      'id': pool.id,
       'name': pool.name,
       'max_size': pool.max_size,
       'members': members_list
