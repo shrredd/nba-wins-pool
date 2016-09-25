@@ -96,7 +96,7 @@ class PoolSerializer(object):
     pool_name = pool_data['name']
     max_size = int(pool_data['max_size'])
     assert max_size in (2, 3, 5, 6)
-    member_usernames = pool_data.getlist('members')
+    member_usernames = pool_data['members']
 
     # 1. Verify that the usernames passed in correspond to actual users.
     users = None
@@ -119,9 +119,4 @@ class PoolSerializer(object):
       for u in users:
         Membership.objects.create(pool=pool, user=u, date_joined=curr_time)
 
-    logger.info('*****************************')
-    logger.info('pool: %s' % pool)
-    logger.info('pool name: %s' % pool.name)
-    logger.info('pool members: %s' % pool.members)
-    logger.info('*****************************')
     return pool

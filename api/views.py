@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from django.http import Http404
 
 from rest_framework import (status, viewsets)
+from rest_framework.parsers import JSONParser
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -24,6 +25,7 @@ class UserViewSet(viewsets.ModelViewSet):
   model = User
   queryset = User.objects.all().order_by('-date_joined')
   lookup_field = ('username')
+  parser_classes = (JSONParser, )
 
   def get_permissions(self):
     # Allow non-authenticated user to create via POST
@@ -56,6 +58,8 @@ def create_pool(pool_nam, usernames=None):
 
 
 class PoolList(APIView):
+  parser_classes = (JSONParser,)
+
   """ List all pools, or create a new pool. """
   def get(self, request, format=None):
     pools = Pool.objects.all()
