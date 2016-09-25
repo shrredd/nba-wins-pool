@@ -25,7 +25,7 @@ SECRET_KEY = 'd6y$xj^o==d)prf!2ip)0u-znp^6myheallu!dg2u%-h2h^(yv'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 if os.environ['ENVIRONMENT'] == 'PRODUCTION':
-    DEBUG = False
+    DEBUG = True
 else:
     DEBUG = True
 
@@ -91,7 +91,7 @@ DATABASES = {
 }
 
 # Update the production config
-if not DEBUG:
+if os.environ['ENVIRONMENT'] == 'PRODUCTION':
     db_from_env = dj_database_url.config(conn_max_age=500)
     DATABASES['default'].update(db_from_env)
 
