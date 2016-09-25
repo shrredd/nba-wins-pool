@@ -49,29 +49,29 @@ class Membership(models.Model):
 #   draft_pick_number = models.IntegerField()
 
 
-def create_pool(pool_name, usernames=None):
-  """
-  Args:
-    pool_name (unicode): The human readable name of the pool to be created.
-    usernames (list): An iterable of the users who are to be initially added to
-      this pool.
-  """
-  from api.models import Pool
-  if not pool_name:
-    raise ValueError("No pool_name passed in")
+# def create_pool(pool_name, usernames=None):
+#   """
+#   Args:
+#     pool_name (unicode): The human readable name of the pool to be created.
+#     usernames (list): An iterable of the users who are to be initially added to
+#       this pool.
+#   """
+#   from api.models import Pool
+#   if not pool_name:
+#     raise ValueError("No pool_name passed in")
 
-  # 1. Create the Pool
-  p = Pool.objects.create(name=pool_name)
+#   # 1. Create the Pool
+#   p = Pool.objects.create(name=pool_name)
 
-  # 2. Optionally create the members of the pool and add them
-  if usernames is not None and len(usernames) > 0:
-    users = User.objects.filter(username__in=usernames)
-    if len(users) != len(set(usernames)):
-      raise ValueError("Username passed in doesnt exist")
+#   # 2. Optionally create the members of the pool and add them
+#   if usernames is not None and len(usernames) > 0:
+#     users = User.objects.filter(username__in=usernames)
+#     if len(users) != len(set(usernames)):
+#       raise ValueError("Username passed in doesnt exist")
 
-    # TODO(shravan): Investigate a way to create memberships all at once instead
-    # of looping here
-    for u in users:
-      m = Membership.objects.create(pool=p, user=u, date_joined=datetime.now())
+#     # TODO(shravan): Investigate a way to create memberships all at once
+#     # instead of looping here
+#     for u in users:
+#       m = Membership.objects.create(pool=p, user=u, date_joined=datetime.now())
 
-  return p
+#   return p

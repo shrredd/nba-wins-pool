@@ -21,12 +21,20 @@ from rest_framework.authtoken.views import obtain_auth_token
 
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.DefaultRouter()
-router.register(r'accounts', views.UserViewSet, 'list')
+router.register(r'accounts', views.UserViewSet)
+# router.register(r'^api/v1/pools/$', views.PoolList.as_view())
+# router.register(r'pools', views.PoolViewSet)
 
+import logging
+logger = logging.getLogger('testlogger')
+
+logger.info('all router urls: %s' % router.urls)
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     url(r'^api/v1/', include(router.urls)),
+    url(r'^api/v1/pools/$', views.PoolList.as_view()),
+    url(r'^api/v1/pools/(?P<pk>[0-9]+)/$', views.PoolDetail.as_view()),
     url(r'^api/v1/auth/', obtain_auth_token),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
