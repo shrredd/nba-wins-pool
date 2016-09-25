@@ -28,7 +28,7 @@ class UserViewSet(viewsets.ModelViewSet):
   def create(self, request):
     logger.info('request data: %s' % request.data)
     serializer = UserSerializer(data=request.data)
-    if serializer.is_valid(raise_exception=True):
+    if serializer.is_valid():
       serializer.save()
       return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -43,7 +43,7 @@ class UserViewSet(viewsets.ModelViewSet):
   def post(self, request, format=None):
     logger.info('request data: %s' % request.data)
     serializer = UserSerializer(data=request.data)
-    if serializer.is_valid(raise_exception=True):
+    if serializer.is_valid():
       serializer.save()
       return Response(serializer.data, status=status.HTTP_201_CREATED)
 
