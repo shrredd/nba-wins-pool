@@ -76,20 +76,16 @@ import time
 class PoolSerializer(object):
   @staticmethod
   def to_data(pool):
-    logger.info('pool members: type(%s)' % type(pool.members.all()))
     members_list = [{
       'username': user.username,
       'email': user.email,
       'date_joined': time.mktime(user.date_joined.timetuple())
     } for user in pool.members.all()]
 
-    serialized = {
+    return {
       'name': pool.name,
       'members': members_list
     }
-
-    logger.info('serialized: %s' % serialized)
-    return serialized
 
   @staticmethod
   def to_data_batch(pools):
@@ -99,8 +95,26 @@ class PoolSerializer(object):
 
   @staticmethod
   def from_data(pool_data):
-    assert 'name' in pool_json
+    assert 'name' in pool_data
 
-    members = []
-    if 'members' in pool_json:
-      members.append()
+    logger.info('pool_data: %s' % pool_data)
+    member_usernames = pool_data.get('members', [])
+    logger.info('member usernames: %s' % member_usernames)
+
+    join_time = datetime.now()
+    pool = Pool.objects.create(name=pool_data['name'])
+
+    if len(member_usernames) > 0:
+      users = User.objects.filter(username__in=member_usernames)
+      if len(users) != len(member_usernames):
+        raise Exception('Bad usernames passed in...')
+
+      for u in users:
+        m = Membership.objects.create(pool=p, user=u, date_joined=join_time)
+
+    logger.info('*****************************')
+    logger.info('pool: %s' % pool)
+    logger.info('pool name: %s' % pool.name)
+    logger.info('pool members: %s' % pool.members)
+    logger.info('*****************************')
+    return pool

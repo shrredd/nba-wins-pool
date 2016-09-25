@@ -72,7 +72,7 @@ def create_pool(pool_nam, usernames=None):
     member_usernames = validated_data['members']
     members = User.objects.filter(username__in=member_usernames)
 
-    for m in members:
+    for u in users:
       date_joined = datetime.now()
       m = Membership.objects.create(pool=p, user=m, date_joined=date_joined)
 
@@ -89,11 +89,13 @@ class PoolList(APIView):
     return Response(serialized_data)
 
   def post(self, request, format=None):
-
-    serializer = PoolSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    logger.info('original pool data: %s' % request.data)
+    pools = PoolSerializer.from_data(request.data)
+    # if serializer.is_valid():
+    #     serializer.save()
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED)
+    if pools:
+      return Response(request.data, status=status.HTTP_201_CREATED)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
