@@ -29,10 +29,10 @@ class UserViewSet(viewsets.ModelViewSet):
     logger.info('request data: %s' % request.data)
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid(raise_exception=True):
-      logger.info('serializer is valid...')
       serializer.save()
       return Response(serializer.data, status=status.HTTP_201_CREATED)
-    logger.info('serializer says john is invalid')
+
+    logger.info('serializer was invalid...')
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
   def get(self, request, format=None):
@@ -41,8 +41,13 @@ class UserViewSet(viewsets.ModelViewSet):
     return Response(serializer.data)
 
   def post(self, request, format=None):
-    logger.info('request: %s' % request)
-    super(UserViewSet, self).post(request, format=format)
+    logger.info('request data: %s' % request.data)
+    serializer = UserSerializer(data=request.data)
+    if serializer.is_valid(raise_exception=True):
+      serializer.save()
+      return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
   def delete(self, request, pk, format=None):
     user = self.get_object(pk)
