@@ -34,7 +34,7 @@ logger.info('all router urls: %s' % router.urls)
 urlpatterns = [
     url(r'^api/v1/', include(router.urls)),
     url(r'^api/v1/pools/$', views.PoolList.as_view()),
-    url(r'^api/v1/pools/(?P<pk>[0-9]+)/$', views.PoolDetail.as_view()),
+    url(r'^api/v1/pools/(?P<username>[a-zA-Z]+)/$', views.PoolsByUser.as_view()),
     url(r'^api/v1/auth/', obtain_auth_token),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
