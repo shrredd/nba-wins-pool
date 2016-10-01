@@ -2,7 +2,12 @@ import logging
 
 from api.permissions import IsStaffOrTargetUser
 from api.models import Pool, Membership
-from api.serializers import (PoolSerializer, UserSerializer, MembershipSerializer)
+from api.serializers import (
+  MembershipSerializer,
+  PoolSerializer,
+  UserSerializer,
+  TooManyMembersException,
+)
 
 from django.contrib.auth.models import User
 from django.http import Http404
@@ -40,22 +45,6 @@ class UserViewSet(viewsets.ModelViewSet):
 ########################################################
 # Pool Related Functions
 ########################################################
-def create_pool(pool_nam, usernames=None):
-  logger.info('create called with validated_data: %s' % validated_data)
-  # 1. Create the Pool
-  p = Pool.objects.create(name=pool_name)
-
-  # 2. Create the membership if member usernames are passed in.
-  if 'members' in validated_data and len(validated_data['members']) > 0:
-    member_usernames = validated_data['members']
-    members = User.objects.filter(username__in=member_usernames)
-
-    for u in users:
-      date_joined = datetime.now()
-      m = Membership.objects.create(pool=p, user=m, date_joined=date_joined)
-
-  return p
-
 
 class PoolList(APIView):
   parser_classes = (JSONParser,)
@@ -70,7 +59,7 @@ class PoolList(APIView):
 
   def post(self, request, format=None):
     logger.info('original pool data: %s' % request.data)
-    pool = PoolSerializer.from_data(request.data)
+    pool = PoolSerializer.create_from_data(request.data)
     # if serializer.is_valid():
     #     serializer.save()
     #     return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -91,15 +80,22 @@ class PoolDetail(APIView):
 
   def put(self, request, pool_id, format=None):
     """
-    Updates an existing Pool with the information passed in through
-    request.
+    Allows a new user to join an existing `pool_id`.
+
+    Args:
+      `request.data` is expected to be in the format:
+      {
+        "member": <username of new member>
+      }
+      If the pool already has reached `max_size`, this will raise a 400.
     """
-    pool = self.get_object(pk)
-    serializer = PoolSerializer(pool, data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    pool = self.get_object(pool_id)
+    logger.info('request data: %s' % request.data)
+    try:
+      pool = PoolSerializer.update_from_data(pool_id, request.data)
+      return Response(PoolSerializer.to_data(pool))
+    except (User.DoesNotExist, Pool.DoesNotExist, TooManyMembersException):
+      return Response('Bad Request', status=status.HTTP_400_BAD_REQUEST)
 
   def delete(self, request, pool_id, format=None):
     """
@@ -111,6 +107,9 @@ class PoolDetail(APIView):
 
 
 class PoolsByUser(APIView):
+  """
+  Allows fetching a particular user's pools.
+  """
   def get(self, request, username, format=None):
     user = User.objects.filter(username=username)
     memberships = Membership.objects.filter(user=user)
