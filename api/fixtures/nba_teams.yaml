@@ -1,0 +1,210 @@
+- id: 1
+  model: api.Team
+  fields:
+    league_full_name: National Basketball Association
+    league_short_code: NBA
+    team_full_name: Atlanta Hawks
+    team_short_code: atlanta-hawks
+- id: 2
+  model: api.Team
+  fields:
+    league_full_name: National Basketball Association
+    league_short_code: NBA
+    team_full_name: Boston Celtics
+    team_short_code: boston-celtics
+- id: 3
+  model: api.Team
+  fields:
+    league_full_name: National Basketball Association
+    league_short_code: NBA
+    team_full_name: Brooklyn Nets
+    team_short_code: brooklyn-nets
+- id: 4
+  model: api.Team
+  fields:
+    league_full_name: National Basketball Association
+    league_short_code: NBA
+    team_full_name: Charlotte Hornets
+    team_short_code: charlotte-hornets
+- id: 5
+  model: api.Team
+  fields:
+    league_full_name: National Basketball Association
+    league_short_code: NBA
+    team_full_name: Chicago Bulls
+    team_short_code: chicago-bulls
+- id: 6
+  model: api.Team
+  fields:
+    league_full_name: National Basketball Association
+    league_short_code: NBA
+    team_full_name: Cleveland Cavaliers
+    team_short_code: cleveland-cavaliers
+- id: 7
+  model: api.Team
+  fields:
+    league_full_name: National Basketball Association
+    league_short_code: NBA
+    team_full_name: Dallas Mavericks
+    team_short_code: dallas-mavericks
+- id: 8
+  model: api.Team
+  fields:
+    league_full_name: National Basketball Association
+    league_short_code: NBA
+    team_full_name: Denver Nuggets
+    team_short_code: denver-nuggets
+- id: 9
+  model: api.Team
+  fields:
+    league_full_name: National Basketball Association
+    league_short_code: NBA
+    team_full_name: Detroit Pistons
+    team_short_code: detroit-pistons
+- id: 10
+  model: api.Team
+  fields:
+    league_full_name: National Basketball Association
+    league_short_code: NBA
+    team_full_name: Golden State Warriors
+    team_short_code: golden-state-warriors
+- id: 11
+  model: api.Team
+  fields:
+    league_full_name: National Basketball Association
+    league_short_code: NBA
+    team_full_name: Houston Rockets
+    team_short_code: houston-rockets
+- id: 12
+  model: api.Team
+  fields:
+    league_full_name: National Basketball Association
+    league_short_code: NBA
+    team_full_name: Indiana Pacers
+    team_short_code: indiana-pacers
+- id: 13
+  model: api.Team
+  fields:
+    league_full_name: National Basketball Association
+    league_short_code: NBA
+    team_full_name: Los Angeles Clippers
+    team_short_code: los-angeles-clippers
+- id: 14
+  model: api.Team
+  fields:
+    league_full_name: National Basketball Association
+    league_short_code: NBA
+    team_full_name: Los Angeles Lakers
+    team_short_code: los-angeles-lakers
+- id: 15
+  model: api.Team
+  fields:
+    league_full_name: National Basketball Association
+    league_short_code: NBA
+    team_full_name: Memphis Grizzlies
+    team_short_code: memphis-grizzlies
+- id: 16
+  model: api.Team
+  fields:
+    league_full_name: National Basketball Association
+    league_short_code: NBA
+    team_full_name: Miami Heat
+    team_short_code: miami-heat
+- id: 17
+  model: api.Team
+  fields:
+    league_full_name: National Basketball Association
+    league_short_code: NBA
+    team_full_name: Milwaukee Bucks
+    team_short_code: milwaukee-bucks
+- id: 18
+  model: api.Team
+  fields:
+    league_full_name: National Basketball Association
+    league_short_code: NBA
+    team_full_name: Minnesota Timberwolves
+    team_short_code: minnesota-timberwolves
+- id: 19
+  model: api.Team
+  fields:
+    league_full_name: National Basketball Association
+    league_short_code: NBA
+    team_full_name: New Orleans Pelicans
+    team_short_code: new-orleans-pelicans
+- id: 20
+  model: api.Team
+  fields:
+    league_full_name: National Basketball Association
+    league_short_code: NBA
+    team_full_name: New York Knicks
+    team_short_code: new-york-knicks
+- id: 21
+  model: api.Team
+  fields:
+    league_full_name: National Basketball Association
+    league_short_code: NBA
+    team_full_name: Oklahoma City Thunder
+    team_short_code: oklahoma-city-thunder
+- id: 22
+  model: api.Team
+  fields:
+    league_full_name: National Basketball Association
+    league_short_code: NBA
+    team_full_name: Orlando Magic
+    team_short_code: orlando-magic
+- id: 23
+  model: api.Team
+  fields:
+    league_full_name: National Basketball Association
+    league_short_code: NBA
+    team_full_name: Philadelphia 76ers
+    team_short_code: philadelphia-76ers
+- id: 24
+  model: api.Team
+  fields:
+    league_full_name: National Basketball Association
+    league_short_code: NBA
+    team_full_name: Phoenix Suns
+    team_short_code: phoenix-suns
+- id: 25
+  model: api.Team
+  fields:
+    league_full_name: National Basketball Association
+    league_short_code: NBA
+    team_full_name: Portland Trail Blazers
+    team_short_code: portland-trail-blazers
+- id: 26
+  model: api.Team
+  fields:
+    league_full_name: National Basketball Association
+    league_short_code: NBA
+    team_full_name: Sacramento Kings
+    team_short_code: sacramento-kings
+- id: 27
+  model: api.Team
+  fields:
+    league_full_name: National Basketball Association
+    league_short_code: NBA
+    team_full_name: San Antonio Spurs
+    team_short_code: san-antonio-spurs
+- id: 28
+  model: api.Team
+  fields:
+    league_full_name: National Basketball Association
+    league_short_code: NBA
+    team_full_name: Toronto Raptors
+    team_short_code: toronto-raptors
+- id: 29
+  model: api.Team
+  fields:
+    league_full_name: National Basketball Association
+    league_short_code: NBA
+    team_full_name: Utah Jazz
+    team_short_code: utah-jazz
+- id: 30
+  model: api.Team
+  fields:
+    league_full_name: National Basketball Association
+    league_short_code: NBA
+    team_full_name: Washington Wizards
+    team_short_code: washington-wizards
