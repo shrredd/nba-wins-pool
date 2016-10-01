@@ -80,27 +80,13 @@ class PoolList(APIView):
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-class PoolsByUser(APIView):
+class PoolDetails(APIView):
   """ Retrieve, update or delete a pool instance. """
   def get_object(self, pk):
     try:
       return Pool.objects.get(pk=pk)
     except Pool.DoesNotExist:
       raise Http404
-
-  def get(self, request, username, format=None):
-    user = User.objects.filter(username=username)
-    memberships = Membership.objects.filter(user=user)
-    pools = [membership.pool for membership in memberships]
-
-    if pools:
-      pool_data = PoolSerializer.to_data_batch(pools)
-      return Response(pool_data, status=status.HTTP_201_CREATED)
-
-    return Response("Bad request", status=status.HTTP_400_BAD_REQUEST)
-    # serializer = PoolSerializer(pool, context={'request': request})
-    # return Response(serializer.data)
 
   def put(self, request, username, format=None):
     """
@@ -121,3 +107,20 @@ class PoolsByUser(APIView):
     pool = self.get_object(pk)
     pool.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class PoolsByUser(APIView):
+  def get(self, request, username, format=None):
+    user = User.objects.filter(username=username)
+    memberships = Membership.objects.filter(user=user)
+    pools = [membership.pool for membership in memberships]
+
+    if pools:
+      pool_data = PoolSerializer.to_data_batch(pools)
+      return Response(pool_data, status=status.HTTP_201_CREATED)
+
+    return Response("Bad request", status=status.HTTP_400_BAD_REQUEST)
+    # serializer = PoolSerializer(pool, context={'request': request})
+    # return Response(serializer.data)
+
+
