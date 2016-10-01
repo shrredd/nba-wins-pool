@@ -14,6 +14,8 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 
+import logging
+
 from api import views
 from django.conf.urls import url, include
 from rest_framework import routers
@@ -22,11 +24,9 @@ from rest_framework.authtoken.views import obtain_auth_token
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.DefaultRouter()
 router.register(r'accounts', views.UserViewSet)
-# router.register(r'^api/v1/pools/$', views.PoolList.as_view())
 # router.register(r'pools', views.PoolViewSet)
 
-import logging
-logger = logging.getLogger('testlogger')
+logger = logging.getLogger('nba-logger')
 
 logger.info('all router urls: %s' % router.urls)
 # Wire up our API using automatic URL routing.

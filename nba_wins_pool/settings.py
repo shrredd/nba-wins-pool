@@ -201,7 +201,7 @@ LOGGING = {
         }
     },
     'loggers': {
-        'testlogger': {
+        'nba-logger': {
             'handlers': ['console'],
             'level': 'INFO',
         }

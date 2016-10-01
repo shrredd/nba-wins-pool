@@ -14,7 +14,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 # Set up logger
-logger = logging.getLogger('testlogger')
+logger = logging.getLogger('nba-logger')
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -80,15 +80,16 @@ class PoolList(APIView):
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class PoolDetails(APIView):
+
+class PoolDetail(APIView):
   """ Retrieve, update or delete a pool instance. """
-  def get_object(self, pk):
+  def get_object(self, pool_id):
     try:
-      return Pool.objects.get(pk=pk)
+      return Pool.objects.get(id=pool_id)
     except Pool.DoesNotExist:
       raise Http404
 
-  def put(self, request, username, format=None):
+  def put(self, request, pool_id, format=None):
     """
     Updates an existing Pool with the information passed in through
     request.
@@ -100,7 +101,7 @@ class PoolDetails(APIView):
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-  def delete(self, request, username, format=None):
+  def delete(self, request, pool_id, format=None):
     """
     Deletes the pool at `pk`.
     """
@@ -120,7 +121,7 @@ class PoolsByUser(APIView):
       return Response(pool_data, status=status.HTTP_201_CREATED)
 
     return Response("Bad request", status=status.HTTP_400_BAD_REQUEST)
-    # serializer = PoolSerializer(pool, context={'request': request})
-    # return Response(serializer.data)
 
-
+  def get_permissions(self):
+    # Allow non-authenticated user to create via POST
+    return (AllowAny() if self.request.method == 'POST' else IsStaffOrTargetUser()),

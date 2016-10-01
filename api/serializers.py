@@ -2,10 +2,9 @@ from api.models import (Membership, Pool)
 from django.contrib.auth.models import User
 from datetime import datetime
 from rest_framework import serializers
-from rest_framework.authtoken.models import Token
 
 import logging
-logger = logging.getLogger('testlogger')
+logger = logging.getLogger('nba-logger')
 
 
 class UserSerializer(serializers.ModelSerializer):
