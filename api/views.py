@@ -22,6 +22,9 @@ from rest_framework.views import APIView
 logger = logging.getLogger('nba-logger')
 
 
+######################################################################
+# USER DETAILS
+######################################################################
 class UserViewSet(viewsets.ModelViewSet):
   """
   ViewSet for generic django User.
@@ -43,7 +46,7 @@ class UserViewSet(viewsets.ModelViewSet):
 #   queryset = Membership.objects.all()
 
 ######################################################################
-# POOL RELATED FUNCTIONS
+# LIST OF ALL POOLS
 ######################################################################
 class PoolList(APIView):
   parser_classes = (JSONParser,)
@@ -69,6 +72,9 @@ class PoolList(APIView):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+######################################################################
+# DETAILS OF A SPECIFIC POOL
+######################################################################
 class PoolDetail(APIView):
   """ Retrieve, update or delete a pool instance. """
   def get_object(self, pool_id):
@@ -106,6 +112,9 @@ class PoolDetail(APIView):
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+######################################################################
+# POOLS FOR A SPECIFIC USER
+######################################################################
 class PoolsByUser(APIView):
   """
   Allows fetching a particular user's pools.
