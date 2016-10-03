@@ -41,10 +41,9 @@ class UserViewSet(viewsets.ModelViewSet):
 #   model = Membership
 #   queryset = Membership.objects.all()
 
-########################################################
-# Pool Related Functions
-########################################################
-
+######################################################################
+# POOL RELATED FUNCTIONS
+######################################################################
 class PoolList(APIView):
   parser_classes = (JSONParser,)
 

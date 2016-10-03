@@ -1,24 +1,23 @@
 import logging
 import time
 
-from api.models import (Membership, Pool)
+from api.models import (Membership, Pool, SUPPORTED_POOL_SIZES)
 from django.contrib.auth.models import User
-from datetime import datetime
 from rest_framework import serializers
 
 logger = logging.getLogger('nba-logger')
 
 
-class TooManyMembersException(Exception):
-  pass
-
-
+######################################################################
+# USER SERIALIZER
+######################################################################
 class UserSerializer(serializers.ModelSerializer):
   class Meta:
     model = User
     fields = ('id', 'username', 'email', 'password')
-    read_only_fields = ('is_staff', 'is_superuser',
-                        'is_active', 'date_joined',)
+    read_only_fields = (
+      'is_staff', 'is_superuser', 'is_active', 'date_joined',
+    )
     extra_kwargs = {
       'password': {'write_only': True},
       'id': {'read_only': True},
@@ -36,16 +35,21 @@ class UserSerializer(serializers.ModelSerializer):
 
     # A coresponding authentication token for this user is created in models.py
     # t = Token.objects.create(user=user)
-
     return user
 
 
+######################################################################
+# MEMBERSHIP SERIALIZER
+######################################################################
 class MembershipSerializer(serializers.HyperlinkedModelSerializer):
   class Meta:
     model = Membership
     fields = ('user', 'date_joined')
 
 
+######################################################################
+# POOL SERIALIZER
+######################################################################
 class PoolSerializer(object):
   @staticmethod
   def to_data(pool):
@@ -74,47 +78,42 @@ class PoolSerializer(object):
     assert 'name' in pool_data and isinstance(pool_data['name'], basestring)
     assert 'max_size' in pool_data
 
-    logger.info('within from_data: %s' % pool_data)
     pool_name = pool_data['name']
-    max_size = int(pool_data['max_size'])
-    assert max_size in (2, 3, 5, 6)
     member_usernames = pool_data['members']
+    max_size = int(pool_data['max_size'])
+    assert max_size in SUPPORTED_POOL_SIZES
 
     # 1. Verify that the usernames passed in correspond to actual users.
     users = None
     if len(member_usernames) > 0:
       users = User.objects.filter(username__in=member_usernames)
-      logger.info('len(users): %s' % len(users))
-      logger.info('len(member names): %s' % len(set(member_usernames)))
       if len(users) != len(set(member_usernames)):
         raise Exception('Bad usernames passed in...')
 
     # 2. Create the Pool.
-    pool = Pool.objects.create(
-      name=pool_name,
-      max_size=max_size
-    )
+    pool = Pool.objects.create(name=pool_name, max_size=max_size)
 
-    # 3. Create the Membership for each of the Users.
-    if users is not None:
-      curr_time = datetime.now()
-      for u in users:
-        Membership.objects.create(pool=pool, user=u, date_joined=curr_time)
+    # 3. Add each user as a new member.
+    for user in users:
+      pool.add_member(user)
 
     return pool
 
   @staticmethod
   def update_from_data(pool_id, pool_data):
     """
-    Updates an existing pool with `pool_data`.
+    Adds a new member whose username is in `pool_data`.
 
     Args:
-      `pool.data`: Expected to be in the format:
-      {
-        "member": <username of new member>
-      }
+      pool_id: The pool id of an existing pool
+      pool_data: Expected to be in the format:
+        {"member": <username of new member>}
+
     Raises:
-      User.DoesNotExist, Pool.DoesNotExist, TooManyMemberException.
+      User.DoesNotExist: If the user within `pool_data` doesn't exist.
+      Pool.DoesNotExist: If the pool doesn't exist.
+      TooManyMembersException: If we attempt to add more users than the pool
+        can handle.
     """
     # 0. Validate the `pool_data` and `pool_id`.
     assert pool_id.isdigit()
@@ -127,17 +126,12 @@ class PoolSerializer(object):
     if not user:
       raise User.DoesNotExist()
 
-    # 2. Attempt to fetch the Pool
+    # 2. Attempt to fetch the Pool.
     pool = Pool.objects.get(id=pool_id)
     if not pool:
       raise Pool.DoesNotExist()
 
-    # 3. Verify that we can add another member
-    if len(pool.members.all()) >= pool.max_size:
-      raise TooManyMembersException()
-
-    # 4. Add a new member to the Pool
-    curr_time = datetime.now()
-    Membership.objects.create(pool=pool, user=user, date_joined=curr_time)
+    # 3. Add the new member to the pool.
+    pool.add_member(user)
 
     return pool
