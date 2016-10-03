@@ -7,6 +7,53 @@ from api.exceptions import (
 )
 from api.models import (DraftPick, Pool)
 from django.contrib.auth.models import User
+
+
+# TODO(shravan): Figure out how to run these tests in the django
+# unit test framework.
+class ModelsTestCase(unittest.TestCase):
+  """
+  Base class that defines a series of helpers that are useful for testing
+  models.
+  """
+  # TODO(shravan): Figure out how to write this test case in a django
+  # sandbox so users are not persisted to the database.
+  def create_test_user(self, email=None, username=None):
+    """Creates exactly one test user. Persisted to the database."""
+    email = 'randomtestuser@mailinator.com' if email is None else email
+    username = 'randomtestuser' if username is None else username
+    password = 'password'
+
+    user = User(email=email, username=username)
+    user.set_password(password)
+    user.save()
+
+    return user
+
+  def create_test_users(self, num_users=1):
+    """Creates `num_users` mock User objects."""
+    users = []
+    for i in range(num_users):
+      email = 'randomtestuser_%s@mailinator.com' % i
+      username = 'randomtestuser_%s' % i
+
+      user = self.create_test_user(email=email, username=username)
+      users.append(user)
+
+    return users
+
+  def create_test_pool(self, name=None, max_size=None):
+    """Creates a mock Pool object."""
+    name = 'My Cool Pool' if name is None else name
+    max_size = 5 if max_size is None else max_size
+
+    pool = Pool(name=name, max_size=max_size)
+    pool.save()
+
+    return pool
+
+
+class PoolTests(ModelsTestCase):
   def _sanity_check_draft_order_dict(self, user_ids, user_ids_by_draft_order):
     # -1. Verify that it's a dict and there are only 30 picks received.
     assert isinstance(user_ids_by_draft_order, dict)
@@ -26,6 +73,47 @@ from django.contrib.auth.models import User
     for draft_pick in expected_draft_picks:
       assert user_ids_by_draft_order[draft_pick] == draft_pick_user_id
 
+  ######################################################################
+  # ADD MEMBERS
+  ######################################################################
+  def test_add_member_too_many_members(self):
+    pool = self.create_test_pool(max_size=2)
+    users = self.create_test_users(num_users=3)
+
+    for user in users[:2]:
+      pool.add_member(user)
+
+    with self.assertRaises(TooManyMembersException):
+      pool.add_member(users[2])
+
+  def test_add_member_duplicate_members(self):
+    pool = self.create_test_pool(max_size=2)
+    users = self.create_test_users(num_users=2)
+
+    for user in users:
+      pool.add_member(user)
+
+    with self.assertRaises(DuplicateMemberException):
+      pool.add_member(user[0])
+
+  def test_add_member(self):
+    pool = self.create_test_pool(max_size=2)
+    users = self.create_test_users(num_users=2)
+
+    for user in users:
+      pool.add_member(user)
+
+    # 0. Verify that the relation was created.
+    assert len(pool.members.all()) == 2
+    for user in users:
+      assert user in pool.members.all()
+
+    # 1. Verify that begin draft was called
+    assert pool.begin_draft.is_called()
+
+  ######################################################################
+  # COMPUTE DRAFT ORDER
+  ######################################################################
   def test_compute_draft_order_incorrect_size(self):
     """Tests that an AssertionError is raised when a list of incorrect
     size is passed in."""

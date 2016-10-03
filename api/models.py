@@ -10,12 +10,11 @@ from datetime import datetime
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.db.models.signals import post_save
 from random import shuffle
 from rest_framework.authtoken.models import Token
 
-import logging
 logger = logging.getLogger('nba-logger')
 
 SUPPORTED_POOL_SIZES = (2, 3, 5, 6)
@@ -28,15 +27,40 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
     Token.objects.create(user=instance)
 
 
-# A User is part of many Pools
 class Pool(models.Model):
   """
   `Pool` has many `User`s through `Membership`. User is part of many `Pool`s
   through the `Membership`.
   """
   name = models.CharField(max_length=128)
-  members = models.ManyToManyField(User, through='Membership')
   max_size = models.PositiveSmallIntegerField(default=5)
+  members = models.ManyToManyField(User, through='Membership')
+
+  def add_member(self, user):
+    """
+    Adds a new member to the Pool. If, after adding the new member, we're at
+    `self.max_size`, then kicks off the Pool.
+    """
+    # 0. Verify that we can add another unique member.
+    original_pool_size = len(self.members.all())
+    if original_pool_size >= self.max_size:
+      raise TooManyMembersException("Cannot add any more members to the Pool.")
+
+    if user in self.members.all():
+      raise DuplicateMemberException("Cannot add the same member to the Pool twice.")
+
+    # 1. Add the new member to the Pool.
+    curr_time = datetime.now()
+    Membership.objects.create(pool=self, user=user, date_joined=curr_time)
+
+    # 2. If we now have enough members in the pool to begin, compute the
+    # draft order and draft status.
+    new_members = self.members.all()
+    assert len(new_members) == original_pool_size + 1
+    if len(new_members) == self.max_size:
+      self.begin_draft()
+
+    return self
 
   @staticmethod
   def compute_draft_order(user_ids):
