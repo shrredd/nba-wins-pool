@@ -1,9 +1,12 @@
 import unittest
 
-from .models import Pool
-
-
-class PoolTests(unittest.TestCase):
+from api.exceptions import (
+  DuplicateMemberException,
+  TooFewMembersException,
+  TooManyMembersException,
+)
+from api.models import (DraftPick, Pool)
+from django.contrib.auth.models import User
   def _sanity_check_draft_order_dict(self, user_ids, user_ids_by_draft_order):
     # -1. Verify that it's a dict and there are only 30 picks received.
     assert isinstance(user_ids_by_draft_order, dict)
@@ -102,6 +105,56 @@ class PoolTests(unittest.TestCase):
                                       [4, 9, 15, 21, 27])
     self._verify_expected_draft_order(user_ids_by_draft_order, 5,
                                       [5, 8, 13, 19, 26])
+
+  ######################################################################
+  # BEGIN DRAFT
+  ######################################################################
+  def test_begin_draft_not_enough_members(self):
+    """Verifies that we can't begin a draft if not everyone has joined yet."""
+    users = self.create_test_users(num_users=2)
+    pool = self.create_test_pool(max_size=2)
+
+    # 0. Attempt to start a draft without any members.
+    with self.assertRaises(TooFewMembersException):
+      pool.begin_draft()
+
+    # 1. Add one member and then try again.
+    pool.add_member(users[0])
+    with self.assertRaises(TooFewMembersException):
+      pool.begin_draft()
+
+    # 2. Add another member, then try again. We expect this to work.
+    pool.add_member(users[1])
+    with not self.assertRaises(TooFewMembersException):
+      pool.begin_draft()
+
+  def test_begin_draft_verify_picks_created(self):
+    """Verifies that empty DraftPick relationships are created once the draft
+    has begun."""
+    users = self.create_test_users(num_users=2)
+    pool = self.create_test_pool(max_size=2)
+
+    # 0. Add both users to the pool.
+    for user in users:
+      pool.add_member(user)
+
+    # 1. Once the second user was added, verify that the draft was started.
+    assert pool.begin_draft.is_called()
+
+    # 2. Verify that DraftPicks were created.
+    draft_picks = pool.draft_pick.object_set.all()
+
+    for pick in draft_picks:
+      assert isinstance(pick, DraftPick)
+
+      assert pick.pool == pool
+
+      assert isinstance(pick.user, User)
+      assert pick.user in users
+
+      assert pick.team is None
+
+      assert pick.draft_pick_number in range(1, 31)
 
 
 if __name__ == '__main__':

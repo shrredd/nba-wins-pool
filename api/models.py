@@ -1,5 +1,12 @@
-from __future__ import unicode_literals
+import logging
 
+from __future__ import unicode_literals
+from api.exceptions import (
+  DuplicateMemberException,
+  TooFewMembersException,
+  TooManyMembersException,
+)
+from datetime import datetime
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
@@ -74,6 +81,27 @@ class Pool(models.Model):
 
     return user_ids_by_draft_order
 
+  def begin_draft(self):
+    """
+    Verifies that we have enough members to start the pool and then creates
+    empty DraftPicks for each member of the Pool.
+
+    Returns:
+      Nothing but creates a series of DraftPicks for each member.
+
+    Raises:
+      AssertionError: If we cannot begin the draft yet.
+    """
+    if len(self.members) != self.max_size:
+      raise TooFewMembersException("Not enough members to start the pool!")
+
+    users_by_id = {member.user.id: member.user for member in self.members}
+    user_ids_by_draft_order = Pool.compute_draft_order(users_by_id.keys())
+
+    for (pick, user_id) in user_ids_by_draft_order.iteritems():
+      user = users_by_id[user_id]
+      DraftPick.objects.create(pool=self, user=user, draft_pick_number=pick)
+
   def __unicode__(self):
     return '<Pool (name=%s, max_size=%s)>' % (self.name, self.max_size)
 
@@ -105,5 +133,5 @@ class Team(models.Model):
 class DraftPick(models.Model):
   pool = models.ForeignKey(Pool, on_delete=models.CASCADE)
   user = models.ForeignKey(User, on_delete=models.CASCADE)
-  team = models.ForeignKey(Team, on_delete=models.CASCADE)
+  team = models.ForeignKey(Team, optional=True, on_delete=models.CASCADE)
   draft_pick_number = models.IntegerField(default=1)
