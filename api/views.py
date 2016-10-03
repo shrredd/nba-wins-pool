@@ -1,9 +1,8 @@
 import logging
 
-from api.permissions import IsStaffOrTargetUser
 from api.models import Pool, Membership
+from api.permissions import IsStaffOrTargetUser
 from api.serializers import (
-  MembershipSerializer,
   PoolSerializer,
   UserSerializer,
   TooManyMembersException,
