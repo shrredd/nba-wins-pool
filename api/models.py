@@ -4,6 +4,7 @@ import logging
 
 from api.exceptions import (
   DuplicateMemberException,
+  InvalidMemberException,
   TooFewMembersException,
   TooManyMembersException,
 )
@@ -62,6 +63,15 @@ class Pool(models.Model):
       self.begin_draft()
 
     return self
+
+  def remove_member(self, user):
+    """
+    Removes the user from the membership list of the Pool
+    """
+    if user not in self.members.all():
+      raise InvalidMemberException("Cannot remove a member that isn't part of the pool")
+
+    Membership.objects.delete(pool=self, user=user)
 
   @staticmethod
   def compute_draft_order(user_ids):
