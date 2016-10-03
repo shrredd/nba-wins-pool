@@ -48,9 +48,9 @@ class UserSerializer(serializers.ModelSerializer):
     assert isinstance(user, User)
 
     return {
+      'id': user.id,
       'username': user.username,
       'email': user.email,
-      'date_joined': time.mktime(user.date_joined.timetuple())
     }
 
   @staticmethod
@@ -117,7 +117,7 @@ class PoolSerializer(object):
       'max_size': pool.max_size,
       'members': UserSerializer.to_data_batch(pool.members.all()),
       'draft_status': DraftPickSerializer.to_data_batch(
-        pool.draft_pick_set.objects.all() if pool.draft_pick_set is not None else []
+        pool.draft_pick_set.objects.all() if pool.draft_pick_set is not None else None
       ),
     }
 

@@ -1,6 +1,7 @@
+from __future__ import unicode_literals
+
 import logging
 
-from __future__ import unicode_literals
 from api.exceptions import (
   DuplicateMemberException,
   TooFewMembersException,
@@ -157,5 +158,5 @@ class Team(models.Model):
 class DraftPick(models.Model):
   pool = models.ForeignKey(Pool, on_delete=models.CASCADE)
   user = models.ForeignKey(User, on_delete=models.CASCADE)
-  team = models.ForeignKey(Team, optional=True, on_delete=models.CASCADE)
+  team = models.ForeignKey(Team, on_delete=models.CASCADE)
   draft_pick_number = models.IntegerField(default=1)

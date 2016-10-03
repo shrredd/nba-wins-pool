@@ -1,11 +1,12 @@
 import logging
 
+from api.exceptions import TooManyMembersException
 from api.models import Pool, Membership
 from api.permissions import IsStaffOrTargetUser
 from api.serializers import (
   PoolSerializer,
   UserSerializer,
-  TooManyMembersException,
+
 )
 
 from django.contrib.auth.models import User
@@ -97,10 +98,11 @@ class PoolDetail(APIView):
 
   def delete(self, request, pool_id, format=None):
     """
-    Deletes the pool at `pk`.
+    Removes the logged in user from the pool specified by pool_id.
     """
-    pool = self.get_object(pk)
-    pool.delete()
+    pool = self.get_object(pool_id)
+    user = request.user
+    pool.remove_member(user)
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 
