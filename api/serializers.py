@@ -1,7 +1,13 @@
 import logging
 import time
 
-from api.models import (Membership, Pool, SUPPORTED_POOL_SIZES)
+from api.models import (
+  DraftPick,
+  Membership,
+  Pool,
+  SUPPORTED_POOL_SIZES,
+  Team,
+)
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
@@ -37,6 +43,21 @@ class UserSerializer(serializers.ModelSerializer):
     # t = Token.objects.create(user=user)
     return user
 
+  @staticmethod
+  def to_data(user):
+    assert isinstance(user, User)
+
+    return {
+      'username': user.username,
+      'email': user.email,
+      'date_joined': time.mktime(user.date_joined.timetuple())
+    }
+
+  @staticmethod
+  def to_data_batch(users):
+    assert isinstance(users, list)
+    return [UserSerializer.to_data(user) for user in users]
+
 
 ######################################################################
 # MEMBERSHIP SERIALIZER
@@ -48,22 +69,56 @@ class MembershipSerializer(serializers.HyperlinkedModelSerializer):
 
 
 ######################################################################
+# TEAM SERIALIZER
+######################################################################
+class TeamSerializer(object):
+  @staticmethod
+  def to_data(team):
+    assert isinstance(team, Team)
+    return {
+      'league_short_code': team.league_short_code,
+      'league_full_name': team.league_full_name,
+      'team_id': team.team_short_code,
+      'team_full_name': team.team_full_name,
+    }
+
+  @staticmethod
+  def to_data_batch(teams):
+    return [TeamSerializer.to_data(team) for team in teams]
+
+
+######################################################################
+# DRAFT PICK SERIALIZER
+######################################################################
+class DraftPickSerializer(object):
+  @staticmethod
+  def to_data(draft_pick):
+    assert isinstance(draft_pick, DraftPick)
+    return {
+      'user': UserSerializer.to_data(draft_pick.user),
+      'team': TeamSerializer.to_data(draft_pick.team) if draft_pick.team is not None else None,
+      'draft_pick_number': draft_pick.draft_pick_number,
+    }
+
+  @staticmethod
+  def to_data_batch(draft_picks):
+    return [DraftPickSerializer.to_data(draft_pick) for draft_pick in draft_picks]
+
+
+######################################################################
 # POOL SERIALIZER
 ######################################################################
 class PoolSerializer(object):
   @staticmethod
   def to_data(pool):
-    members_list = [{
-      'username': user.username,
-      'email': user.email,
-      'date_joined': time.mktime(user.date_joined.timetuple())
-    } for user in pool.members.all()]
-
     return {
       'id': pool.id,
       'name': pool.name,
       'max_size': pool.max_size,
-      'members': members_list
+      'members': UserSerializer.to_data_batch(pool.members.all()),
+      'draft_status': DraftPickSerializer.to_data_batch(
+        pool.draft_pick_set.objects.all() if pool.draft_pick_set is not None else []
+      ),
     }
 
   @staticmethod
