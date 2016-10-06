@@ -1,7 +1,7 @@
 import logging
 
 from api.exceptions import TooManyMembersException
-from api.models import Pool, Membership
+from api.models import Membership, Pool, Team
 from api.permissions import IsStaffOrTargetUser
 from api.serializers import (
   DraftPickSerializer,
@@ -160,19 +160,16 @@ class DraftDetail(APIView):
     return Response(draft_pick_data)
 
   def put(self, request, pool_id, format=None):
-    pool = PoolSerializer.update_from_data(pool_id, request.data)
-    return Response(PoolSerializer.to_data(pool))
-
-    # TODO(shravan): Old. Remove.
     pool = self.get_pool(pool_id)
-    memberships = Membership.objects.filter(user=user)
-    pools = [membership.pool for membership in memberships]
+    user = request.user
 
-    if pools:
-      pool_data = PoolSerializer.to_data_batch(pools)
-      return Response(pool_data, status=status.HTTP_201_CREATED)
+    team_short_code = request.data['team_id']
+    team = Team.objects.get(team_short_code=team_short_code)
 
-    return Response("Bad request", status=status.HTTP_400_BAD_REQUEST)
+    pool = pool.make_draft_pick(user, team)
+    draft_picks = self.get_draft(pool.id)
+    draft_pick_data = DraftPickSerializer.to_data_batch(draft_picks)
+    return Response(draft_pick_data)
 
 
 ######################################################################
