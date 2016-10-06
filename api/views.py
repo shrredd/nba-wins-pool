@@ -6,6 +6,7 @@ from api.permissions import IsStaffOrTargetUser
 from api.serializers import (
   DraftPickSerializer,
   PoolSerializer,
+  PoolMemberSerializer,
   UserSerializer,
 )
 
@@ -83,6 +84,25 @@ class PoolDetail(APIView):
     except Pool.DoesNotExist:
       raise Http404
 
+  def get(self, request, pool_id):
+    """Fetch the draft picks for a particular pool"""
+    pool = self.get_object(pool_id)
+    pool_data = PoolSerializer.to_data(pool)
+    return Response(pool_data)
+
+  def delete(self, request, pool_id, format=None):
+    """ Deletes the Pool entirely """
+    pass
+
+
+class PoolMembers(APIView):
+
+  def _get_object(self, pool_id):
+    try:
+      return Pool.objects.get(id=pool_id)
+    except Pool.DoesNotExist:
+      raise Http404
+
   def put(self, request, pool_id, format=None):
     """
     Allows a new user to join an existing `pool_id`.
@@ -94,11 +114,10 @@ class PoolDetail(APIView):
       }
       If the pool already has reached `max_size`, this will raise a 400.
     """
-    pool = self.get_object(pool_id)
     logger.info('request data: %s' % request.data)
     try:
-      pool = PoolSerializer.update_from_data(pool_id, request.data)
-      return Response(PoolSerializer.to_data(pool))
+      pool_members = PoolMemberSerializer.update_from_data(pool_id, request.data)
+      return Response(PoolMemberSerializer.to_data_batch(pool_members))
     except (User.DoesNotExist, Pool.DoesNotExist, TooManyMembersException):
       return Response('Bad Request', status=status.HTTP_400_BAD_REQUEST)
 
@@ -106,10 +125,54 @@ class PoolDetail(APIView):
     """
     Removes the logged in user from the pool specified by pool_id.
     """
-    pool = self.get_object(pool_id)
+    pool = self._get_object(pool_id)
     user = request.user
     pool.remove_member(user)
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+######################################################################
+# DETAILS OF THE DRAFT CORRESPONDING TO THE POOL
+######################################################################
+class DraftDetail(APIView):
+  """
+  Retrieve the details of the draft corresponding to a particular pool.
+  """
+  def get_pool(self, pool_id):
+    try:
+      return Pool.objects.get(id=pool_id)
+    except Pool.DoesNotExist:
+      raise Http404
+
+  def get_draft(self, pool_id):
+    pool = self.get_pool(pool_id)
+    draft_picks = pool.draftpick_set.all()
+
+    if draft_picks == [] or draft_picks is None:
+      raise Http404
+
+    return draft_picks
+
+  def get(self, request, pool_id):
+    """Fetch the draft picks for a particular pool"""
+    draft_picks = self.get_draft(pool_id)
+    draft_pick_data = DraftPickSerializer.to_data_batch(draft_picks)
+    return Response(draft_pick_data)
+
+  def put(self, request, pool_id, format=None):
+    pool = PoolSerializer.update_from_data(pool_id, request.data)
+    return Response(PoolSerializer.to_data(pool))
+
+    # TODO(shravan): Old. Remove.
+    pool = self.get_pool(pool_id)
+    memberships = Membership.objects.filter(user=user)
+    pools = [membership.pool for membership in memberships]
+
+    if pools:
+      pool_data = PoolSerializer.to_data_batch(pools)
+      return Response(pool_data, status=status.HTTP_201_CREATED)
+
+    return Response("Bad request", status=status.HTTP_400_BAD_REQUEST)
 
 
 ######################################################################

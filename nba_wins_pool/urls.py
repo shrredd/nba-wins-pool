@@ -33,9 +33,17 @@ logger.info('all router urls: %s' % router.urls)
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     url(r'^api/v1/', include(router.urls)),
-    url(r'^api/v1/pools/$', views.PoolList.as_view()),
+
+    # Details of Pools
     url(r'^api/v1/pools/(?P<pool_id>[0-9]+)$', views.PoolDetail.as_view()),
+    url(r'^api/v1/pools/(?P<pool_id>[0-9]+)/draft/', views.DraftDetail.as_view()),
+    url(r'^api/v1/pools/(?P<pool_id>[0-9]+)/members/', views.PoolMembers.as_view()),
+
     url(r'^api/v1/(?P<username>[a-zA-Z]+)/pools/', views.PoolsByUser.as_view()),
     url(r'^api/v1/auth/', obtain_auth_token),
+
+    # TODO(shravan): Remove this in production.
+    # DEBUGGING ONLY
+    url(r'^api/v1/pools/$', views.PoolList.as_view()),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
