@@ -71,7 +71,6 @@ class Pool(models.Model):
     if user not in self.members.all():
       raise InvalidMemberException("Cannot remove a member that isn't part of the pool")
 
-    Membership.objects.delete(pool=self, user=user)
 
   @staticmethod
   def compute_draft_order(user_ids):
@@ -94,7 +93,6 @@ class Pool(models.Model):
     assert pool_size in SUPPORTED_POOL_SIZES
 
     # 1. Shuffle the user_ids randomly.
-    random_user_ids = shuffle(list(set(user_ids)))
 
     logger.info('random user_ids: %s' % random_user_ids)
 
@@ -127,10 +125,8 @@ class Pool(models.Model):
     Raises:
       AssertionError: If we cannot begin the draft yet.
     """
-    if len(self.members) != self.max_size:
       raise TooFewMembersException("Not enough members to start the pool!")
 
-    users_by_id = {member.user.id: member.user for member in self.members}
     user_ids_by_draft_order = Pool.compute_draft_order(users_by_id.keys())
 
     for (pick, user_id) in user_ids_by_draft_order.iteritems():
@@ -168,5 +164,4 @@ class Team(models.Model):
 class DraftPick(models.Model):
   pool = models.ForeignKey(Pool, on_delete=models.CASCADE)
   user = models.ForeignKey(User, on_delete=models.CASCADE)
-  team = models.ForeignKey(Team, on_delete=models.CASCADE)
   draft_pick_number = models.IntegerField(default=1)
