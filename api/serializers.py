@@ -111,6 +111,7 @@ class DraftPickSerializer(object):
 class PoolSerializer(object):
   @staticmethod
   def to_data(pool):
+    logger.info('pool.draft_pick_set: %s' % pool.draftpick_set.all())
     return {
       'id': pool.id,
       'name': pool.name,
@@ -152,15 +153,17 @@ class PoolSerializer(object):
 
     return pool
 
+
+class PoolMemberSerializer(object):
   @staticmethod
-  def update_from_data(pool_id, pool_data):
+  def update_from_data(pool_id, pool_member_data):
     """
     Adds a new member whose username is in `pool_data`.
 
     Args:
       pool_id: The pool id of an existing pool
       pool_data: Expected to be in the format:
-        {"member": <username of new member>}
+        {"username": <username of new member>}
 
     Raises:
       User.DoesNotExist: If the user within `pool_data` doesn't exist.
@@ -170,8 +173,8 @@ class PoolSerializer(object):
     """
     # 0. Validate the `pool_data` and `pool_id`.
     assert pool_id.isdigit()
-    assert "member" in pool_data
-    member_username = pool_data["member"]
+    assert "username" in pool_member_data
+    member_username = pool_member_data["username"]
     pool_id = long(pool_id)
 
     # 1. Validate that a user exists with `member_username`
@@ -184,7 +187,18 @@ class PoolSerializer(object):
     if not pool:
       raise Pool.DoesNotExist()
 
+    logger.info('pool: %s' % pool)
     # 3. Add the new member to the pool.
     pool.add_member(user)
 
-    return pool
+    logger.info('pool after adding member: %s' % pool.members.all())
+
+    return pool.members.all()
+
+  @staticmethod
+  def to_data(pool_member):
+    return UserSerializer.to_data(pool_member)
+
+  @staticmethod
+  def to_data_batch(pool_members):
+    return UserSerializer.to_data_batch(pool_members)
