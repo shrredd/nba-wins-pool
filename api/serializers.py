@@ -55,7 +55,7 @@ class UserSerializer(serializers.ModelSerializer):
 
   @staticmethod
   def to_data_batch(users):
-    assert isinstance(users, list)
+    """ `users` can be any iterable value, e.g. a QuerySet instead of just a list """
     return [UserSerializer.to_data(user) for user in users]
 
 
@@ -116,9 +116,7 @@ class PoolSerializer(object):
       'name': pool.name,
       'max_size': pool.max_size,
       'members': UserSerializer.to_data_batch(pool.members.all()),
-      'draft_status': DraftPickSerializer.to_data_batch(
-        pool.draft_pick_set.objects.all() if pool.draft_pick_set is not None else None
-      ),
+      'draft_status': DraftPickSerializer.to_data_batch(pool.draftpick_set.all()),
     }
 
   @staticmethod

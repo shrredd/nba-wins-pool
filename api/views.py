@@ -4,9 +4,9 @@ from api.exceptions import TooManyMembersException
 from api.models import Pool, Membership
 from api.permissions import IsStaffOrTargetUser
 from api.serializers import (
+  DraftPickSerializer,
   PoolSerializer,
   UserSerializer,
-
 )
 
 from django.contrib.auth.models import User
@@ -14,7 +14,7 @@ from django.http import Http404
 
 from rest_framework import (status, viewsets)
 from rest_framework.parsers import JSONParser
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -116,6 +116,8 @@ class PoolDetail(APIView):
 # POOLS FOR A SPECIFIC USER
 ######################################################################
 class PoolsByUser(APIView):
+  permission_classes = (IsAuthenticated,)
+
   """
   Allows fetching a particular user's pools.
   """
@@ -124,12 +126,14 @@ class PoolsByUser(APIView):
     memberships = Membership.objects.filter(user=user)
     pools = [membership.pool for membership in memberships]
 
+    logger.info('membership pools: %s type(%s)' % (pools, type(memberships[0].pool)))
+
     if pools:
       pool_data = PoolSerializer.to_data_batch(pools)
       return Response(pool_data, status=status.HTTP_201_CREATED)
 
     return Response("Bad request", status=status.HTTP_400_BAD_REQUEST)
 
-  def get_permissions(self):
+  # def get_permissions(self):
     # Allow non-authenticated user to create via POST
-    return (AllowAny() if self.request.method == 'POST' else IsStaffOrTargetUser()),
+    # return (AllowAny() if self.request.method == 'POST' else IsStaffOrTargetUser()),
