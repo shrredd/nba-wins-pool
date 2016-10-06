@@ -20,3 +20,7 @@ class TooManyMembersException(Exception):
 class TooFewMembersException(Exception):
   """Raised when there are too few members to start a draft."""
   pass
+
+
+class BadPickException(Exception):
+  pass

@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 import logging
 
 from api.exceptions import (
+  BadPickException,
   DuplicateMemberException,
   InvalidMemberException,
   TooFewMembersException,
@@ -139,6 +140,24 @@ class Pool(models.Model):
     for (pick, user_id) in user_ids_by_draft_order.iteritems():
       user = users_by_id[user_id]
       DraftPick.objects.create(pool=self, user=user, draft_pick_number=pick)
+
+  def make_draft_pick(self, user, team):
+    # 0. Ensure that only the next user up can make a pick.
+    pick = DraftPick.objects.filter(pool=self, team=None).order_by('draft_pick_number')[0]
+    if pick.user != user:
+      raise BadPickException("Not user: %s's turn to pick!" % user.username)
+
+    # 1. Ensure that the user doesn't try to pick a team that has already been
+    # chosen.
+    dps = DraftPick.objects.filter(pool=self).exclude(team__isnull=True).order_by('draft_pick_number')
+    teams_picked = [dp.team for dp in dps]
+    if team in teams_picked:
+      raise BadPickException("Can't pick a team %s that has already been chosen" % team.team_full_name)
+
+    pick.team = team
+    pick.save()
+
+    return self
 
   def __unicode__(self):
     return '<Pool (name=%s, max_size=%s)>' % (self.name, self.max_size)
