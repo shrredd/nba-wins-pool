@@ -111,9 +111,10 @@ class Pool(models.Model):
 
     # 3. Grab the relevant draft order and populate the dict.
     draft_order = draft_order_by_pool_size[pool_size]
+    logger.info('draft order: %s' % draft_order)
     user_ids_by_draft_order = {}
-    for pick in draft_order:
-      user_ids_by_draft_order[pick] = random_user_ids[pick - 1]
+    for pick_index, user_index in enumerate(draft_order):
+      user_ids_by_draft_order[pick_index + 1] = random_user_ids[user_index - 1]
 
     logger.info('user_ids_by_draft_order: %s' % user_ids_by_draft_order)
 
@@ -137,6 +138,7 @@ class Pool(models.Model):
     users_by_id = {member.id: member for member in members}
     user_ids_by_draft_order = Pool.compute_draft_order(users_by_id.keys())
 
+    logger.info('user_ids_by_draft_order: %s' % user_ids_by_draft_order)
     for (pick, user_id) in user_ids_by_draft_order.iteritems():
       user = users_by_id[user_id]
       DraftPick.objects.create(pool=self, user=user, draft_pick_number=pick)
