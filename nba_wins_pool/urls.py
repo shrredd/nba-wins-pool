@@ -39,7 +39,7 @@ urlpatterns = [
     url(r'^api/v1/pools/(?P<pool_id>[0-9]+)/draft/', views.DraftDetail.as_view()),
     url(r'^api/v1/pools/(?P<pool_id>[0-9]+)/members/', views.PoolMembers.as_view()),
 
-    url(r'^api/v1/(?P<username>[a-zA-Z]+)/pools/', views.PoolsByUser.as_view()),
+    url(r'^api/v1/(?P<username>[a-zA-Z0-9]+)/pools/', views.PoolsByUser.as_view()),
     url(r'^api/v1/auth/', obtain_auth_token),
 
     # TODO(shravan): Remove this in production.
