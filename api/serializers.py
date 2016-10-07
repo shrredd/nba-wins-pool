@@ -94,11 +94,15 @@ class DraftPickSerializer(object):
   @staticmethod
   def to_data(draft_pick):
     assert isinstance(draft_pick, DraftPick)
-    return {
+    draft_pick_dict = {
       'user': UserSerializer.to_data(draft_pick.user),
-      'team': TeamSerializer.to_data(draft_pick.team) if draft_pick.team is not None else None,
       'draft_pick_number': draft_pick.draft_pick_number,
     }
+
+    if draft_pick.team is not None:
+      draft_pick_dict['team'] = TeamSerializer.to_data(draft_pick.team)
+
+    return draft_pick_dict
 
   @staticmethod
   def to_data_batch(draft_picks):

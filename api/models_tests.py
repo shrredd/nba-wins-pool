@@ -7,11 +7,12 @@ from api.exceptions import (
 )
 from api.models import (DraftPick, Pool)
 from django.contrib.auth.models import User
+from django.test import TestCase
 
 
 # TODO(shravan): Figure out how to run these tests in the django
 # unit test framework.
-class ModelsTestCase(unittest.TestCase):
+class ModelsTestCase(TestCase):
   """
   Base class that defines a series of helpers that are useful for testing
   models.
@@ -245,5 +246,5 @@ class PoolTests(ModelsTestCase):
       assert pick.draft_pick_number in range(1, 31)
 
 
-if __name__ == '__main__':
-    unittest.main()
+# if __name__ == '__main__':
+#     unittest.main()
