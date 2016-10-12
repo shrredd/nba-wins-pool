@@ -5,5 +5,7 @@ djangorestframework==3.4.6
 gunicorn==19.6.0
 Markdown==2.6.6
 psycopg2==2.6.2
+PyYAML==3.12
 requests==2.11.1
+requests-toolbelt==0.7.0
 whitenoise==3.2.1
